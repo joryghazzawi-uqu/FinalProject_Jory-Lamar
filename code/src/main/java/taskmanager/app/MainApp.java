@@ -8,14 +8,23 @@ import java.time.LocalDateTime;
 
 /**
  * Application entry point for the Smart Task Manager.
- *
- * This class creates the TaskManager instance, adds sample tasks,
- * and starts the Swing graphical user interface.
+ * <p>
+ * Initializes the application components, creates sample tasks, and launches
+ * the Swing user interface.
+ * </p>
  */
 public class MainApp {
 
     /**
      * Starts the Smart Task Manager application.
+     * <p>
+     * Preconditions: the environment must support Swing and the configured
+     * weather API key may be absent.
+     * </p>
+     * <p>
+     * Postconditions: the application window is displayed and sample tasks are
+     * persisted to storage.
+     * </p>
      *
      * @param args command-line arguments, not used in this application
      */

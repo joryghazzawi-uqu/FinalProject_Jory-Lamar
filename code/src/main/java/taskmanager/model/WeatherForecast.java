@@ -4,12 +4,25 @@ import java.time.LocalDateTime;
 
 /**
  * Represents weather forecast data used by the schedule planner.
+ * <p>
+ * Contains a timestamped forecast for a location together with temperature,
+ * condition text, and an estimated precipitation probability.
+ * </p>
  */
 public class WeatherForecast {
+    /** Location for which the forecast applies. */
     private final String location;
+
+    /** Forecast timestamp. */
     private final LocalDateTime time;
+
+    /** Temperature value in degrees Celsius. */
     private final double temperatureCelsius;
+
+    /** Short weather condition description. */
     private final String condition;
+
+    /** Probability of precipitation, from 0.0 to 1.0. */
     private final double precipitationProbability;
 
     /**

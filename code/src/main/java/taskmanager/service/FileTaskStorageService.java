@@ -17,13 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JSON file implementation of StorageService.
- *
+ * JSON file implementation of {@link StorageService}.
+ * <p>
  * Saves and loads tasks from a local JSON file. File operations are executed
  * on Reactor's boundedElastic scheduler to avoid blocking the Swing UI thread.
+ * </p>
  */
 public class FileTaskStorageService implements StorageService {
+    /** Path of the JSON file used for persistent task storage. */
     private final Path storagePath;
+
+    /** Jackson object mapper configured for Java time support. */
     private final ObjectMapper objectMapper;
 
     /**
@@ -43,6 +47,16 @@ public class FileTaskStorageService implements StorageService {
 
     /**
      * Saves tasks to JSON.
+     * <p>
+     * Preconditions: {@code tasks} must not be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: the task list is written to the configured storage path
+     * if the operation succeeds.
+     * </p>
+     * <p>
+     * Side effects: writes a JSON file to disk and may create parent directories.
+     * </p>
      *
      * @param tasks tasks to save
      * @return Mono that completes when writing is done
@@ -72,6 +86,13 @@ public class FileTaskStorageService implements StorageService {
 
     /**
      * Loads tasks from JSON.
+     * <p>
+     * Postconditions: returns a Mono emitting the loaded task list, or an empty
+     * list when the storage file does not exist.
+     * </p>
+     * <p>
+     * Side effects: reads JSON content from disk.
+     * </p>
      *
      * @return Mono emitting loaded tasks or an empty list when no file exists
      * @throws InvalidTaskException if loading fails

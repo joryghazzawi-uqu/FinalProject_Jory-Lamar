@@ -7,15 +7,25 @@ import java.time.LocalDateTime;
 
 /**
  * Represents a task in the Smart Task Manager.
- *
- * A task contains an ID, title, description, due date and time,
- * and a flag indicating whether it is affected by weather.
+ * <p>
+ * A task contains an identifier, title, optional description, scheduled
+ * due date/time, and a flag indicating whether its execution depends on weather.
+ * </p>
  */
 public class Task {
+    /** Unique identifier for the task. */
     private final String id;
+
+    /** User-facing title for the task. */
     private String title;
+
+    /** Optional details describing the task. */
     private String description;
+
+    /** Due date and time for the task. */
     private LocalDateTime dueDateTime;
+
+    /** True when task execution depends on weather conditions. */
     private boolean weatherSensitive;
 
     /**
@@ -55,6 +65,13 @@ public class Task {
 
     /**
      * Updates the task title.
+     * <p>
+     * Preconditions: {@code title} may be {@code null} or blank, but the task
+     * may fail validation later if it is invalid.
+     * </p>
+     * <p>
+     * Postconditions: {@link #getTitle()} returns the new value.
+     * </p>
      *
      * @param title the new title
      */
@@ -71,6 +88,9 @@ public class Task {
 
     /**
      * Updates the task description.
+     * <p>
+     * Postconditions: {@link #getDescription()} returns the updated description.
+     * </p>
      *
      * @param description the new description
      */
@@ -87,6 +107,13 @@ public class Task {
 
     /**
      * Updates the task due date and time.
+     * <p>
+     * Preconditions: {@code dueDateTime} may be {@code null}, but the task
+     * may fail validation later if unset.
+     * </p>
+     * <p>
+     * Postconditions: {@link #getDueDateTime()} returns the new value.
+     * </p>
      *
      * @param dueDateTime the new due date and time
      */
@@ -103,6 +130,9 @@ public class Task {
 
     /**
      * Updates whether the task is weather sensitive.
+     * <p>
+     * Postconditions: {@link #isWeatherSensitive()} reflects the new flag.
+     * </p>
      *
      * @param weatherSensitive true if weather affects this task
      */

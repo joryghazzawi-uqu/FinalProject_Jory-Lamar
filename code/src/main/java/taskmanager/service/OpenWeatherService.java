@@ -22,27 +22,36 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * WeatherService implementation that connects to the OpenWeatherMap API.
- *
- * This class fetches real weather data, converts the API JSON response into
- * a WeatherForecast object, caches results for a short time, and uses Reactor
- * to run network operations on a background thread.
+ * {@link WeatherService} implementation that connects to the OpenWeatherMap API.
+ * <p>
+ * This class fetches live weather data, converts the API JSON response into a
+ * {@link WeatherForecast}, caches results, and executes network operations on
+ * a background thread.
+ * </p>
  */
 public class OpenWeatherService implements WeatherService {
     private static final String WEATHER_URL =
             "https://api.openweathermap.org/data/2.5/weather";
 
+    /** Duration for which a cached forecast is considered valid. */
     private static final Duration CACHE_EXPIRATION = Duration.ofMinutes(15);
 
+    /** API key for OpenWeatherMap requests. */
     private final String apiKey;
+
+    /** HTTP client used to send requests. */
     private final HttpClient httpClient;
+
+    /** JSON mapper used to parse API responses. */
     private final ObjectMapper objectMapper;
+
+    /** Cache of recent forecasts keyed by lowercase location. */
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /**
      * Creates an OpenWeatherService.
      *
-     * @param apiKey OpenWeatherMap API key
+     * @param apiKey OpenWeatherMap API key; may be {@code null} to disable real API calls
      */
     public OpenWeatherService(String apiKey) {
         this.apiKey = apiKey;
@@ -52,6 +61,16 @@ public class OpenWeatherService implements WeatherService {
 
     /**
      * Fetches a weather forecast for a location.
+     * <p>
+     * Preconditions: {@code location} must not be {@code null} or blank.
+     * </p>
+     * <p>
+     * Postconditions: returns a {@link Mono} that emits a valid forecast or fails
+     * with {@link taskmanager.exception.WeatherAPIException}.
+     * </p>
+     * <p>
+     * Side effects: may perform network I/O and cache the received forecast.
+     * </p>
      *
      * @param location city or location name
      * @return Mono emitting the weather forecast
@@ -85,6 +104,16 @@ public class OpenWeatherService implements WeatherService {
 
     /**
      * Performs the HTTP request and parses the API response.
+     * <p>
+     * Preconditions: {@code location} must be a trimmed non-empty location string.
+     * </p>
+     * <p>
+     * Postconditions: returns a parsed {@link WeatherForecast} and caches it for
+     * future requests within the configured expiration window.
+     * </p>
+     * <p>
+     * Side effects: may perform a blocking HTTP request and update the internal cache.
+     * </p>
      *
      * @param location city or location name
      * @return parsed weather forecast
@@ -157,6 +186,9 @@ public class OpenWeatherService implements WeatherService {
 
     /**
      * Reads the main weather condition from the JSON response.
+     * <p>
+     * Preconditions: {@code node} must contain the parsed API response tree.
+     * </p>
      *
      * @param node API response JSON
      * @return weather condition text
@@ -173,9 +205,10 @@ public class OpenWeatherService implements WeatherService {
 
     /**
      * Calculates an approximate precipitation probability.
-     *
+     * <p>
      * OpenWeather current weather API does not always provide probability,
      * so this method estimates it using rain, snow, and cloud data.
+     * </p>
      *
      * @param node API response JSON
      * @return probability value between 0.0 and 1.0

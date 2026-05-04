@@ -16,20 +16,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Default implementation of TaskService.
- *
- * Stores tasks in a thread-safe ConcurrentHashMap and saves them to JSON storage.
- * Reactor is used with boundedElastic scheduler to run file operations away from
- * the Swing Event Dispatch Thread.
+ * Default implementation of {@link TaskService}.
+ * <p>
+ * Stores tasks in a thread-safe {@link ConcurrentHashMap} and persists them
+ * through a {@link StorageService}. Reactor ensures file operations execute
+ * off the Swing Event Dispatch Thread.
+ * </p>
  */
 public class DefaultTaskService implements TaskService {
+    /** In-memory task store keyed by task ID. */
     private final Map<String, Task> tasks = new ConcurrentHashMap<>();
+
+    /** Service used to persist and load tasks. */
     private final StorageService storageService;
 
     /**
      * Creates the service and loads existing tasks from storage.
      *
-     * @param storageService storage service used to load and save tasks
+     * @param storageService storage service used to load and save tasks; must not be {@code null}
      */
     public DefaultTaskService(StorageService storageService) {
         this.storageService = storageService;
@@ -47,6 +51,16 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Adds or updates a task asynchronously.
+     * <p>
+     * Preconditions: {@code task} must not be {@code null} and must satisfy
+     * <code>validateTask</code> rules.
+     * </p>
+     * <p>
+     * Postconditions: the task is stored in memory and persisted to disk.
+     * </p>
+     * <p>
+     * Side effects: may update the in-memory task map and invoke the storage service.
+     * </p>
      *
      * @param task task to add or update
      * @return Mono that completes after validation, memory update, and file save
@@ -63,6 +77,16 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Removes a task asynchronously.
+     * <p>
+     * Preconditions: {@code taskId} must not be {@code null} or blank.
+     * </p>
+     * <p>
+     * Postconditions: the task is removed from memory and persisted storage
+     * if it exists.
+     * </p>
+     * <p>
+     * Side effects: may modify the in-memory task map and save the remaining tasks.
+     * </p>
      *
      * @param taskId task ID
      * @return Mono that completes after removal and file save
@@ -87,6 +111,12 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Finds a task by ID.
+     * <p>
+     * Preconditions: {@code taskId} must not be {@code null} or blank.
+     * </p>
+     * <p>
+     * Postconditions: if a task exists, it is emitted by the returned Mono.
+     * </p>
      *
      * @param taskId task ID
      * @return Mono emitting the task
@@ -101,6 +131,9 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Returns all tasks as a Flux.
+     * <p>
+     * Postconditions: the returned Flux emits a snapshot of the current tasks.
+     * </p>
      *
      * @return Flux containing all tasks
      */
@@ -112,6 +145,9 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Returns all tasks as a List inside a Mono.
+     * <p>
+     * Postconditions: the returned Mono emits a list snapshot of all current tasks.
+     * </p>
      *
      * @return Mono emitting list of tasks
      */
@@ -123,6 +159,13 @@ public class DefaultTaskService implements TaskService {
 
     /**
      * Validates task data before saving.
+     * <p>
+     * Preconditions: the {@code task} parameter may be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: if no exception is thrown, the task meets the validation
+     * requirements for persistence.
+     * </p>
      *
      * @param task task to validate
      * @throws InvalidTaskException if validation fails

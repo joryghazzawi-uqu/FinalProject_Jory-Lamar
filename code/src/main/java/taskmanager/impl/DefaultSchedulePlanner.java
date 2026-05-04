@@ -12,19 +12,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Default implementation of SchedulePlanner.
- *
- * Generates recommendations by checking task weather sensitivity and current
- * forecast conditions. Uses Reactor so recommendation processing can happen
- * on a background thread.
+ * Default implementation of {@link SchedulePlanner}.
+ * <p>
+ * Generates schedule recommendations by analyzing task weather sensitivity
+ * together with forecast information.
+ * </p>
+ * <p>
+ * Uses Reactor to offload recommendation generation to a background scheduler.
+ * </p>
  */
 public class DefaultSchedulePlanner implements SchedulePlanner {
+    /** Service used to fetch weather forecasts when location-based planning is requested. */
     private final WeatherService weatherService;
 
     /**
      * Creates a schedule planner.
      *
-     * @param weatherService service used to fetch weather when location is provided
+     * @param weatherService service used to fetch weather when location is provided; must not be {@code null}
      */
     public DefaultSchedulePlanner(WeatherService weatherService) {
         this.weatherService = weatherService;
@@ -32,6 +36,17 @@ public class DefaultSchedulePlanner implements SchedulePlanner {
 
     /**
      * Generates recommendations using a provided weather forecast.
+     * <p>
+     * Preconditions: {@code tasks} must not be {@code null} and each task must
+     * have valid scheduling information. {@code forecast} must not be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: the returned {@link Mono} emits a list of recommendations
+     * reflecting the provided forecast and task sensitivity.
+     * </p>
+     * <p>
+     * Side effects: none beyond performing in-memory recommendation generation.
+     * </p>
      *
      * @param tasks tasks to analyze
      * @param forecast weather forecast
@@ -55,10 +70,22 @@ public class DefaultSchedulePlanner implements SchedulePlanner {
 
     /**
      * Fetches forecast by location then generates recommendations.
+     * <p>
+     * Preconditions: {@code tasks} must not be {@code null} and
+     * {@code location} must be a valid location string.
+     * </p>
+     * <p>
+     * Postconditions: the returned {@link Mono} emits recommendations based on
+     * fetched weather data.
+     * </p>
+     * <p>
+     * Side effects: delegates weather retrieval to {@link WeatherService}.
+     * </p>
      *
      * @param tasks tasks to analyze
      * @param location location used for weather lookup
      * @return Mono emitting schedule recommendations
+     * @throws taskmanager.exception.WeatherAPIException if weather data cannot be fetched
      */
     @Override
     public Mono<List<ScheduleRecommendation>> suggestScheduleForLocation(
@@ -71,6 +98,13 @@ public class DefaultSchedulePlanner implements SchedulePlanner {
 
     /**
      * Creates one recommendation message for one task.
+     * <p>
+     * Preconditions: {@code task} and {@code forecast} must not be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: returns a textual recommendation describing whether the
+     * task should proceed based on current weather conditions.
+     * </p>
      *
      * @param task task to analyze
      * @param forecast weather forecast

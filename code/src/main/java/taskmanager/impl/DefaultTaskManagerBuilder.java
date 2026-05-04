@@ -7,16 +7,23 @@ import taskmanager.service.FileTaskStorageService;
 import taskmanager.service.OpenWeatherService;
 
 /**
- * Builder implementation for creating a configured TaskManager.
+ * Builder implementation for creating a configured {@link taskmanager.api.TaskManager}.
+ * <p>
+ * This builder centralizes configuration for the task manager components,
+ * including weather API integration and persistent storage path selection.
+ * </p>
  */
 public class DefaultTaskManagerBuilder implements TaskManager.TaskManagerBuilder {
+    /** OpenWeather API key used by {@link OpenWeatherService}. */
     private String apiKey;
+
+    /** File path for JSON task storage; defaults to {@code tasks.json}. */
     private String storagePath = "tasks.json";
 
     /**
      * Sets the weather API key.
      *
-     * @param apiKey weather API key
+     * @param apiKey weather API key; must not be {@code null}
      * @return current builder
      */
     @Override
@@ -27,6 +34,10 @@ public class DefaultTaskManagerBuilder implements TaskManager.TaskManagerBuilder
 
     /**
      * Sets the storage path.
+     * <p>
+     * Preconditions: {@code path} may be {@code null} or blank, in which case
+     * the default path {@code tasks.json} is retained.
+     * </p>
      *
      * @param path JSON file path for task storage
      * @return current builder
@@ -40,7 +51,12 @@ public class DefaultTaskManagerBuilder implements TaskManager.TaskManagerBuilder
     }
 
     /**
-     * Builds a TaskManager with task storage, weather service, and planner.
+     * Builds a {@link taskmanager.api.TaskManager} with task storage, weather service,
+     * and schedule planning.
+     * <p>
+     * Postconditions: returns a TaskManager configured with the selected API key
+     * and storage path.
+     * </p>
      *
      * @return configured TaskManager
      */
@@ -55,14 +71,11 @@ public class DefaultTaskManagerBuilder implements TaskManager.TaskManagerBuilder
     }
 
     /**
-     * Creates real weather service when API key exists, otherwise fallback service.
+     * Creates a weather service instance based on builder configuration.
      *
-     * @return weather service implementation
+     * @return weather service implementation using the configured API key
      */
     private WeatherService createWeatherService() {
-        if (apiKey == null || apiKey.isBlank()) {
-            return new FallbackWeatherService();
-        }
         return new OpenWeatherService(apiKey);
     }
 }

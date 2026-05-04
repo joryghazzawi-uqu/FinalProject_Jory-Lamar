@@ -115,7 +115,17 @@ public class SmartTaskManagerFrame extends JFrame {
     }
 
     /**
-     * Loads tasks from TaskManager and displays them in the table.
+     * Loads tasks from {@link TaskManager} and displays them in the table.
+     * <p>
+     * Preconditions: the TaskManager instance must be initialized.
+     * </p>
+     * <p>
+     * Postconditions: the table is refreshed with the current tasks and the
+     * status label reflects the load result.
+     * </p>
+     * <p>
+     * Side effects: performs background task loading and updates the Swing UI.
+     * </p>
      */
     private void loadTasks() {
         statusLabel.setText("Loading tasks...");
@@ -135,6 +145,13 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Fills the table with task data.
+     * <p>
+     * Preconditions: {@code tasks} must not be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: the table contains one row per task and the status label
+     * reflects the number of loaded tasks.
+     * </p>
      *
      * @param tasks list of tasks to display
      */
@@ -155,7 +172,17 @@ public class SmartTaskManagerFrame extends JFrame {
     }
 
     /**
-     * Opens a simple input dialog and adds a new task.
+     * Opens a dialog to collect new task details and submits the task for saving.
+     * <p>
+     * Preconditions: the caller may invoke this method at any time.
+     * </p>
+     * <p>
+     * Postconditions: if the user confirms valid input, a new task is persisted
+     * and the task list is refreshed.
+     * </p>
+     * <p>
+     * Side effects: displays modal dialogs and performs background persistence.
+     * </p>
      */
     private void addTask() {
         JTextField titleField = new JTextField();
@@ -222,6 +249,16 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Deletes the selected task from the table and storage.
+     * <p>
+     * Preconditions: a task row must be selected.
+     * </p>
+     * <p>
+     * Postconditions: the selected task is removed from persistent storage
+     * and the task list is refreshed.
+     * </p>
+     * <p>
+     * Side effects: performs background deletion and updates the UI status.
+     * </p>
      */
     private void deleteSelectedTask() {
         int selectedRow = taskTable.getSelectedRow();
@@ -250,6 +287,15 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Checks weather for the selected task and updates the Status column.
+     * <p>
+     * Preconditions: a task row must be selected and a location must be entered.
+     * </p>
+     * <p>
+     * Postconditions: the task status column is updated based on the fetched forecast.
+     * </p>
+     * <p>
+     * Side effects: performs an asynchronous weather lookup.
+     * </p>
      */
     private void updateWeatherForSelectedTask() {
         int selectedRow = taskTable.getSelectedRow();
@@ -280,6 +326,13 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Updates the Status column using the forecast.
+     * <p>
+     * Preconditions: {@code taskId} must refer to an existing row in the table.
+     * </p>
+     * <p>
+     * Postconditions: the matching task row status cell is updated with a weather
+     * risk summary.
+     * </p>
      *
      * @param taskId task ID
      * @param forecast weather forecast
@@ -306,6 +359,15 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Generates schedule suggestions for all tasks.
+     * <p>
+     * Preconditions: the current location text is used to fetch weather data.
+     * </p>
+     * <p>
+     * Postconditions: a recommendations dialog is displayed if tasks are present.
+     * </p>
+     * <p>
+     * Side effects: performs background recommendation generation and updates the UI.
+     * </p>
      */
     private void suggestSchedule() {
         String location = locationField.getText().trim();
@@ -329,6 +391,12 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Displays schedule recommendations in a popup.
+     * <p>
+     * Preconditions: {@code recommendations} must not be {@code null}.
+     * </p>
+     * <p>
+     * Postconditions: a modal dialog is shown containing the recommendation text.
+     * </p>
      *
      * @param recommendations recommendations to display
      */
@@ -371,6 +439,12 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Updates the Status column for a specific task.
+     * <p>
+     * Preconditions: {@code taskId} must match a task row currently displayed.
+     * </p>
+     * <p>
+     * Postconditions: the status text for the matching task row is updated.
+     * </p>
      *
      * @param taskId task ID
      * @param status status text
@@ -388,6 +462,9 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Generates a simple unique task ID.
+     * <p>
+     * Postconditions: returns a string that is likely unique based on the current timestamp.
+     * </p>
      *
      * @return generated task ID
      */
@@ -397,6 +474,12 @@ public class SmartTaskManagerFrame extends JFrame {
 
     /**
      * Shows an error message in the UI.
+     * <p>
+     * Preconditions: {@code title} must describe the error context.
+     * </p>
+     * <p>
+     * Postconditions: the status label is updated and an error dialog is displayed.
+     * </p>
      *
      * @param title error title
      * @param error exception to display
