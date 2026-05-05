@@ -150,6 +150,15 @@ public class DefaultTaskManager implements TaskManager {
     }
 
     /**
+     * Returns the internal task service.
+     *
+     * @return the task service instance
+     */
+    public TaskService getTaskService() {
+        return taskService;
+    }
+
+    /**
      * Returns the configured schedule planner.
      * <p>
      * Preconditions: the planner must have been supplied at construction time.

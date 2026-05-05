@@ -32,7 +32,7 @@ public class MainApp {
         String apiKey = "bcd27f96c4d0c0e34e6876798a6db7fa";
 
         if (apiKey == null || apiKey.isBlank()) {
-            System.err.println("Warning: OPENWEATHER_API_KEY not configured. Using fallback weather mode.");
+            System.err.println("Warning: OPENWEATHER_API_KEY not configured.");
         }
 
         TaskManager tm = TaskManager.builder()
@@ -63,3 +63,4 @@ public class MainApp {
         javax.swing.SwingUtilities.invokeLater(() -> frame.setVisible(true));
     }
 }
+  
